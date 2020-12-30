@@ -24,47 +24,33 @@ class Algorithms():
 
         """
         # get rows and columns
+        self.thrs_image = thrs_image
         row_num = thrs_image.shape[0]
         col_num = thrs_image.shape[1]
-        label = 150
+        label = 1
         self.value = 255
-        for  i in range(row_num):
-            for j in range(col_num):
-                self.stack_empty = True
-                if thrs_image[i,j] == self.value:
-                    stack = self.label_check(thrs_image,i,j,label)
-
-    def label_check(self,thrs_image,i,j,label):
-        thrs_image[i,j] = label
-        temp_stac = list()
-        for r in range(i-1,i+1):
-            for e in range(j-1,j+1):
-                if thrs_image[r,e] == self.value:
-                    temp_stac.append((r,e))
-                    self.stack_empty = False
-
-
-        
-
-"""
-plt.figure(figsize=(5,5))
-plt.hist(img.ravel(),256,[0,256])
-plt.title("Histogram Before Threshold")
-
-# Adaptive Threshold
-th3 = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,3,5)
-plt.figure(figsize=(5,5))
-plt.imshow(th3)
-plt.show()
-
-plt.figure(figsize=(5,5))
-plt.hist(img.ravel(),256,[0,256])
-plt.title("Histogram After Adaptive Threshold")
-plt.show()
-
-# Gaus Filter
-blur = cv2.GaussianBlur(th3,(5,5),0)
-plt.figure(figsize=(5,5))
-plt.imshow(blur)
-plt.show()
-"""
+        self.stack = list()
+        self.stack_empty = True
+        for  i in range(1,row_num-1):
+            for j in range(1,col_num-1):                
+                if self.thrs_image[i,j] == self.value:
+                    self.label_check(i,j,label)
+                while not self.stack_empty:
+                    if self.stack:
+                        cr_i = self.stack[0][0]
+                        cr_j = self.stack[0][1]
+                        self.stack.pop(0)
+                        self.label_check(cr_i,cr_j,label)
+                    else:
+                        self.stack_empty = True
+                        label = label +20
+                        print("LABEL",label)
+        return self.thrs_image
+    def label_check(self,i,j,label):
+        self.thrs_image[i,j] = label
+        for r in range(i-1,i+2,1):
+            for e in range(j-1,j+2,1):
+                if self.thrs_image[r,e] == self.value:
+                    if not [r,e] in self.stack:
+                        self.stack.append([r,e])
+        self.stack_empty = False
