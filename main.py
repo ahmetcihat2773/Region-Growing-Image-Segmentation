@@ -3,7 +3,7 @@ import cv2
 from Algorithms import Algorithms 
 from skimage.measure import label
 from matplotlib import pyplot as plt 
-img = cv2.imread('./FV-USM/01 (4).jpg',cv2.CV_8U)
+img = cv2.imread('./UTFVP/0053_3_1_120511-103050.png',cv2.CV_8U)
 print(img.shape)
 algorithms = Algorithms()
 # BINARY REGION GROWING
@@ -19,5 +19,10 @@ algorithms = Algorithms()
 #algorithms.showImage(imC,"Color Map")
 
 # GRAY LEVEL REGION GROWING
-
- 
+# Resimler arası kopmaları engellemek için ilk önce dilation uygulayacağım.
+#img = algorithms.apply_dilation(img,7,2)
+labeled = algorithms.region_growing_gray(img)
+u8 = labeled.astype(np.uint8)
+algorithms.showImage(u8,"asd")
+imC = cv2.applyColorMap(u8, cv2.COLORMAP_JET)
+algorithms.showImage(imC,"Color Map")
