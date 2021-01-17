@@ -10,7 +10,7 @@ In this project, a region of interest which is a finger is aimed to be obtained 
 
 $ q_w(t) = q_1(t)var_1^2(t) + q_2(t)var_2^2(t)  $
 
-$q_1(t)$  donates the class probabilities. To calculate the probability for one class, the number of pixels whose gray value is bigger than the threshold should be divided with the total number of pixels. The same thing can be done but pixels whose gray value is less than the threshold should be considered. Therefore the algorithm finds a value of t with which two classes' variance become minimum. Some of the results of the thresholding is given below in figure 1 and figure 2. 
+$q_{1,2}(t)$  donates the class probabilities. To calculate the probability for one class, the number of pixels whose gray value is bigger than the threshold should be divided with the total number of pixels. The same thing can be done but pixels whose gray value is less than the threshold should be considered. Therefore the algorithm finds a value of t with which two classes' variance become minimum. Some of the results of the thresholding is given below in figure 1 and figure 2. 
 
 
 

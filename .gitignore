@@ -2,3 +2,7 @@
 *.png
 FV-USM
 UTFVP
+new_method
+results
+binary_test.py
+binary_test_test.py
