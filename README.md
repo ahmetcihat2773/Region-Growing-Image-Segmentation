@@ -5,23 +5,22 @@
 In this project, a region of interest which is a finger is aimed to be obtained by using some image processing algorithms. First, OTSU thresholding algorithm is applied to get the foreground and background images. After this, the region growing algorithm is applied and the largest possible rectangle is calculated and plotted to get and show the region of interest on the image.
 ## Method 1
 ### Image Enchacenment : 
-This method is used to process images in eary stages of the pipline to get suitable images for region growing algorithm. 
+This method is used to process images in early stages of the pipeline to get suitable images for the region growing algorithm. 
 
 $g(x) = af(x) + B$
 
-This linear transformation is used to get more bright image. Here a and B is a constant and f(x) is our image. This transformation results the following images.
-Original Image |Image After Transformation|
+This linear transformation is used to get the more bright image. Here a and B is a constant and f(x) is our image. This transformation results in the following images.
+Original Image |After Contrast Manipulation|
 :-----------------:|:---------------:
 ![harold](images/new_method/rec/Enchancement/01(1).jpg)|![harold_noise](images/new_method/rec/Enchancement/ench_01(1).jpg)
 
-One can see the affect of this operation on OTSU thresholding with the given two images.
+One can see the effect of this operation on OTSU threshing with the given two images.
 
-OTSU Before |OTSU After|
+Before OTSU  | After OTSU |
 :-----------------:|:---------------:
 ![harold](images/new_method/rec/Enchancement/otsu_01(1).jpg)|![harold_noise](images/new_method/rec/Enchancement/thres_01(1).jpg)
 
 ## Method 2 
-
 
 ### Otsu Thresholding
  OTSU algorithm considers two different classes and tries to minimize the weighted within-class variance[1]
@@ -41,10 +40,19 @@ Region growing is one of the image segmentation methods in which one seed or mul
 * color
 * texture
 * size
+
 In my case, I used the intensity values as a reference for growing the region. Region growing depending on one seed point can be observed with the given figure below. 
 
 ![](growing.gif)
 <sub>Image Source: [Gyfcat](https://gfycat.com/)</sub>
+ 
+Colormap is applied to show the region growing result clearly which can be observed below.
+
+
+Image 1 | Image 2| Image 3|
+:-----------------:|:---------------:|:-----------------:
+![as](images/new_method/rec/Enchancement/asd.jpg)|![asd](images/new_method/rec/Enchancement/colormap_30_4(2).jpg)|![asd](images/new_method/rec/Enchancement/colormap_30_4(6).jpg)
+
 
 ## Method 4
 #### Dilation and Erosion
@@ -68,5 +76,7 @@ After region growing, biggest possible rectangle is plotted on the original imag
 <img src="images/new_method/rec/Enchancement/rec_30_4(1).jpg" width="400"/>
 
 ## Discussion 
-* Unconnected neighbors created problems during region growing algorithm and this can be solved with morphological methods. For example, opening operation can be used to connect foreground pixels to each other after OTSU thresholding. 
-* Applying thresholding and than applying region growing method gives a good result but results can be made better with different algorithms such as region growing algorithm based on surface fitting method that is explained in this <a href="https://www.semanticscholar.org/paper/Segmentation-through-Variable-Order-Surface-Fitting-Besl-Jain/9cb0b37ade76ffb299f6d103203e246d058a6d8c" target="_top">article</a>.
+* Image contrast effects the OTSU results. Without contrast manipulation, OTSU algorithm is not that much efficient to distinguish foreground and background.
+* Unconnected neighbors created problems during region growing algorithm and this can be solved with morphological methods.
+* Erosion might delete more data than needed that's why inner rectangle is not fit well in some images because of the different contrast levels.
+* Applying thresholding and thEn applying region growing method gives a good result but results can be made better with different algorithms such as region growing algorithm based on surface fitting method that is explained in this <a href="https://www.semanticscholar.org/paper/Segmentation-through-Variable-Order-Surface-Fitting-Besl-Jain/9cb0b37ade76ffb299f6d103203e246d058a6d8c" target="_top">article</a>.
