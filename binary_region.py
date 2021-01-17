@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import os
 class BinaryRG():
     def __init__(self):
-        self.window_size = 5
+        self.window_size = 15
     def region_growing_binary(self,thrs_image):
         """
         This algorithm has problem with the labeling unconnected pixels.
@@ -104,30 +104,45 @@ class BinaryRG():
         plt.title(title)
         plt.show()
 binary_rg = BinaryRG()
-for filename in os.listdir("./UTFVP"):
-    if "png" in filename:
+for filename in os.listdir("./FV-USM"):
+    if "jpg" in filename:
         # READ IMAGE
         #img = cv2.imread('./UTFVP/0003_6_4_120524-161445.png',cv2.CV_8U)
-        img = cv2.imread('./UTFVP/'+filename,cv2.CV_8U)
+        img = cv2.imread('./FV-USM/'+filename,cv2.CV_8U)
         # APPLY THRESHOLD
-        alpha = 2 
-        beta = 50
+        alpha = 5
+        beta = 20
+        # Change the contrast of the image
         img_en = cv2.addWeighted(img,alpha,np.zeros(img.shape,img.dtype),0,beta)
+        binary_rg.showImage(img_en,"title")
+        # apply threshold
         ret2,th2= cv2.threshold(img_en,0,255,cv2.THRESH_OTSU+cv2.THRESH_BINARY)
-        cv2.imwrite("new_method/thres_"+filename, th2)
+        #cv2.imwrite("new_method/thres_"+filename, th2)
+        # apply region growing
+        binary_rg.showImage(th2,"title")
         region_growing = binary_rg.region_growing_binary(th2)
         region_growing = region_growing.astype(np.uint8)
+        color_map = cv2.applyColorMap(region_growing, cv2.COLORMAP_JET)
+        #cv2.imwrite("new_method/colormap_"+filename, color_map)
+        #cv2.imwrite("new_method/reggrow_"+filename, region_growing)
+        # apply dilation
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
         dil_region = cv2.dilate(region_growing,kernel,iterations = 1)
+        
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(10,10))
-        er_region = cv2.erode(region_growing,kernel,iterations = 6)
-        cv2.imwrite("new_method/dil_"+filename, dil_region)
-        cv2.imwrite("new_method/er_"+filename, er_region)
+        # appply erosion
+        er_region = cv2.erode(region_growing,kernel,iterations = 7)
+        binary_rg.showImage(er_region,"title")
+        #cv2.imwrite("new_method/dil_"+filename, dil_region)
+        #cv2.imwrite("new_method/er_"+filename, er_region)
         print(filename)
+        # find proper rectangeles
         min_out,max_out = binary_rg.out_rectangle(dil_region) 
         min_in,max_in = binary_rg.in_rectangle(er_region)
+        # Place and on the original image
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         image = cv2.rectangle(img,(max_out[1],max_out[0]),(min_out[1],min_out[0]),(0,0,255),1)
         image = cv2.rectangle(img,(max_in[1],max_in[0]),(min_in[1],min_in[0]),(0,0,255),1)
-        cv2.imwrite("new_method/ench_"+filename, img_en)
-        cv2.imwrite("new_method/rec_"+filename, image)
+        binary_rg.showImage(image,"title")
+        #cv2.imwrite("new_method/ench_"+filename, img_en)
+        #cv2.imwrite("new_method/rec_"+filename, image)
