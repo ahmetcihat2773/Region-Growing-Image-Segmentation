@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import os
 class BinaryRG():
     def __init__(self):
-        print(" ")
+        self.window_size = 5
     def region_growing_binary(self,thrs_image):
         """
         This algorithm has problem with the labeling unconnected pixels.
@@ -16,7 +16,6 @@ class BinaryRG():
         self.col_num = thrs_image.shape[1]
         # create emtpy image
         self.label_image = np.zeros((self.row_num,self.col_num),dtype=int)
-        label = 125
         self.value = 255
         self.stack = list()
         self.visit = list()
@@ -24,9 +23,9 @@ class BinaryRG():
         self.break_loops = False
         for  i in range(1,self.row_num-1):
             for j in range(1,self.col_num-1):                
-                self.label_check(i,j,label)                
+                self.label_check(i,j)                
         return self.label_image
-    def label_check(self,i,j,label):
+    def label_check(self,i,j):
         for r in range(i-1,i+2,1):
             for e in range(j-1,j+2,1):
                 if self.limit(r,e): 
@@ -35,14 +34,23 @@ class BinaryRG():
     def neigh_check(self,i,j,m,img):
         count = 0
         for r in range(i-m,i+m+1,1):
-            for e in range(j-m,j+m+1,1):
+            for e in range(j,j+m+1,1):
                 if self.limit(r,e): 
                     if img[r,e] == 255:                            
                         count = count + 1
-        if count == (2*m+1)*(2*m+1): 
+        if count == (2*m+1)*(m+1): 
             return True
         else:
-            return False
+            count = 0
+            for r in range(i,i+m+1,1):
+                for e in range(j-m,j+m+1,1):
+                    if self.limit(r,e): 
+                        if img[r,e] == 255:                            
+                            count = count + 1
+            if count == (2*m+1)*(m+1): 
+                return True
+            else: 
+                return False
 
     
     def limit(self, x,y):
@@ -74,7 +82,7 @@ class BinaryRG():
         for  i in range(1,self.row_num-1):
             for j in range(1,self.col_num-1): 
                 if img[i,j] == self.value:
-                    flag_minmax = self.neigh_check(i,j,37,img)
+                    flag_minmax = self.neigh_check(i,j,self.window_size,img)
                     if flag_minmax: 
                         if min_corner[0] >= i :
                             min_corner[0] = i
@@ -96,25 +104,30 @@ class BinaryRG():
         plt.title(title)
         plt.show()
 binary_rg = BinaryRG()
-for filename in os.listdir("./FV-USM"):
-    if "jpg" in filename:
+for filename in os.listdir("./UTFVP"):
+    if "png" in filename:
         # READ IMAGE
         #img = cv2.imread('./UTFVP/0003_6_4_120524-161445.png',cv2.CV_8U)
-        img = cv2.imread('./FV-USM/'+filename,cv2.CV_8U)
+        img = cv2.imread('./UTFVP/'+filename,cv2.CV_8U)
         # APPLY THRESHOLD
         alpha = 2 
         beta = 50
         img_en = cv2.addWeighted(img,alpha,np.zeros(img.shape,img.dtype),0,beta)
         ret2,th2= cv2.threshold(img_en,0,255,cv2.THRESH_OTSU+cv2.THRESH_BINARY)
-        #binary_rg.showImage(th2,"OTSU")
-        cv2.imwrite("ecnh_otsu_"+filename, th2)
-        region_growing = binary_rg.region_growing_binary(th2)
-        print(filename)
-        min_out,max_out = binary_rg.out_rectangle(region_growing) 
-        min_in,max_in = binary_rg.in_rectangle(region_growing)
-        image = cv2.rectangle(img,(max_out[1],max_out[0]),(min_out[1],min_out[0]),(255,0,0),2)
-        image = cv2.rectangle(img,(max_in[1],max_in[0]),(min_in[1],min_in[0]),(255,0,0),2)
-        cv2.imwrite("new_method/ench_"+filename, img_en)
         cv2.imwrite("new_method/thres_"+filename, th2)
+        region_growing = binary_rg.region_growing_binary(th2)
+        region_growing = region_growing.astype(np.uint8)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
+        dil_region = cv2.dilate(region_growing,kernel,iterations = 1)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(10,10))
+        er_region = cv2.erode(region_growing,kernel,iterations = 6)
+        cv2.imwrite("new_method/dil_"+filename, dil_region)
+        cv2.imwrite("new_method/er_"+filename, er_region)
+        print(filename)
+        min_out,max_out = binary_rg.out_rectangle(dil_region) 
+        min_in,max_in = binary_rg.in_rectangle(er_region)
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        image = cv2.rectangle(img,(max_out[1],max_out[0]),(min_out[1],min_out[0]),(0,0,255),1)
+        image = cv2.rectangle(img,(max_in[1],max_in[0]),(min_in[1],min_in[0]),(0,0,255),1)
+        cv2.imwrite("new_method/ench_"+filename, img_en)
         cv2.imwrite("new_method/rec_"+filename, image)
-        #binary_rg.showImage(imC,"Color Map")
